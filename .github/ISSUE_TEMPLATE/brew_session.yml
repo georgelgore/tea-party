@@ -1,0 +1,122 @@
+name: Brew Session
+description: Log a tea brewing session
+title: "Brew: "
+labels: ["brew-log"]
+body:
+  - type: dropdown
+    id: tea_name
+    attributes:
+      label: Tea name
+      options:
+        - Ai Lao Mountain Jade Needle White Tea
+        - Early Spring Sun-Dried Buds Wild Varietal
+        - 2025 Ikebana Mini
+        - Imperial Grade Pure Bud Bi Luo Chun
+        - Yunnan Green Spring Bi Luo Chun
+        - First Flush Mao Feng Yunnan Green Tea
+        - Yunnan Pure Bud Silver Strands First Flush
+        - Menghai Buddha Aroma Green Tea
+        - Ganlu
+        - Mao Jian King
+        - Wild Huang
+        - King of Duck Shit Aroma Dan Cong Oolong
+        - Premium AA Da Hong Pao Wu Yi Shan Rock Oolong
+        - Full House Dancong
+        - Golden Duckshit Dancong
+        - Peridot Tieguanyin
+        - Kismet Tieguanyin
+        - Dahongpao
+        - Winter Daphne
+        - No.2 Rougui
+        - Imperial Mojiang Golden Bud Yunnan Black Tea
+        - Feng Qing Wild Tree Purple Black Tea
+        - Butterjam Red
+        - 2020 Waffles
+        - 2018 Brown Sugar
+        - 2022 Gingerbread Man Minis
+        - 2025 Lumber Slut Mini
+        - 2022 Lumber Minis
+        - 2024 5th Wave Mini
+        - 2024 Jamrock Steady Minis
+        - 2022 Boat Captain Minis
+        - 2024 Gas Minis
+        - 2021 Coyote Minis
+        - 2022 941 Mini
+        - 2023 La Sombra Mini
+    validations:
+      required: true
+
+  - type: dropdown
+    id: vessel
+    attributes:
+      label: Vessel
+      options:
+        - Hario ChaCha Kyusu Maru (450ml western)
+        - 100ml gaiwan (gong fu)
+    validations:
+      required: true
+
+  - type: input
+    id: leaf_g
+    attributes:
+      label: Leaf weight (g)
+      placeholder: "4"
+    validations:
+      required: true
+
+  - type: input
+    id: water_ml
+    attributes:
+      label: Water (ml)
+      placeholder: "450"
+    validations:
+      required: true
+
+  - type: input
+    id: temp_c
+    attributes:
+      label: Temperature (°C)
+      placeholder: "85"
+    validations:
+      required: true
+
+  - type: input
+    id: steep_time_seconds
+    attributes:
+      label: Steep time (seconds)
+      placeholder: "90"
+    validations:
+      required: true
+
+  - type: input
+    id: steeps
+    attributes:
+      label: Number of steeps
+      placeholder: "2"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: rating
+    attributes:
+      label: Rating
+      options:
+        - "1"
+        - "1.5"
+        - "2"
+        - "2.5"
+        - "3"
+        - "3.5"
+        - "4"
+        - "4.5"
+        - "5"
+    validations:
+      required: true
+
+  - type: textarea
+    id: tasting_notes
+    attributes:
+      label: Tasting notes
+      placeholder: Clean and sweet. No bitterness.
+    validations:
+      required: false

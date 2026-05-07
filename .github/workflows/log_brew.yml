@@ -1,0 +1,73 @@
+name: Log Brew Session
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  log-brew:
+    if: github.event.label.name == 'brew-logged'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Parse issue and append to brews.csv
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_CREATED_AT: ${{ github.event.issue.created_at }}
+        run: |
+          python3 - <<'EOF'
+          import os
+          import re
+          import csv
+          from datetime import datetime
+
+          body = os.environ["ISSUE_BODY"]
+          created_at = os.environ["ISSUE_CREATED_AT"]
+
+          date = datetime.fromisoformat(created_at.replace("Z", "+00:00")).strftime("%Y-%m-%d")
+
+          def extract(label):
+              pattern = rf"### {re.escape(label)}\s*\n+(.+?)(?=\n###|\Z)"
+              m = re.search(pattern, body, re.DOTALL)
+              return m.group(1).strip() if m else ""
+
+          tea_name = extract("Tea name")
+          vessel = extract("Vessel")
+          leaf_g = extract("Leaf weight (g)")
+          water_ml = extract("Water (ml)")
+          temp_c = extract("Temperature (°C)")
+          steep_time_seconds = extract("Steep time (seconds)")
+          steeps = extract("Number of steeps")
+          rating = extract("Rating")
+          tasting_notes = extract("Tasting notes")
+
+          # Map vessel display name back to a short form for the CSV
+          vessel_map = {
+              "Hario ChaCha Kyusu Maru (450ml western)": "Hario ChaCha Kyusu Maru",
+              "100ml gaiwan (gong fu)": "100ml gaiwan",
+          }
+          vessel = vessel_map.get(vessel, vessel)
+
+          row = [date, tea_name, vessel, leaf_g, water_ml, temp_c,
+                 steep_time_seconds, steeps, rating, tasting_notes]
+
+          csv_path = "brew-log/brews.csv"
+          with open(csv_path, "a", newline="", encoding="utf-8") as f:
+              writer = csv.writer(f)
+              writer.writerow(row)
+
+          print(f"Logged: {row}")
+          EOF
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add brew-log/brews.csv
+          git diff --cached --quiet || git commit -m "brew: log session from issue #${{ github.event.issue.number }}"
+          git push
