@@ -7,6 +7,7 @@ Opens a browser form at http://localhost:7890
 
 import csv
 import os
+import socket
 import threading
 import webbrowser
 from datetime import date
@@ -348,13 +349,27 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
 
+def local_ip():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "0.0.0.0"
+
+
 def main():
     Handler.tea_names = load_tea_names()
-    server = HTTPServer(("127.0.0.1", PORT), Handler)
-    url = f"http://localhost:{PORT}"
-    print(f"  Tea Party brew logger running at {url}")
+    server = HTTPServer(("0.0.0.0", PORT), Handler)
+    local_url = f"http://localhost:{PORT}"
+    network_url = f"http://{local_ip()}:{PORT}"
+    print(f"  Tea Party brew logger running at:")
+    print(f"    Local:   {local_url}")
+    print(f"    Network: {network_url}  ← open this on your iPhone")
     print("  Press Ctrl+C to stop.\n")
-    threading.Timer(0.5, lambda: webbrowser.open(url)).start()
+    threading.Timer(0.5, lambda: webbrowser.open(local_url)).start()
     try:
         server.serve_forever()
     except KeyboardInterrupt:
