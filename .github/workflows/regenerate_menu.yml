@@ -1,0 +1,31 @@
+name: Regenerate Tea Menu PDF
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - inventory/teas.csv
+
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install reportlab
+        run: pip install reportlab
+
+      - name: Generate PDF
+        run: cd menu && python generate_menu.py
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add menu/output/doug_and_georges_tea_menu.pdf
+          git diff --cached --quiet || git commit -m "chore: regenerate tea menu PDF"
+          git push
