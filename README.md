@@ -12,6 +12,7 @@ A personal tea collection tracker for George and Doug. This repo keeps track of 
 | `brew-log/brews.csv` | Log of every brew session |
 | `menu/generate_menu.py` | Generates the printable tea menu PDF |
 | `menu/output/doug_and_georges_tea_menu.pdf` | The latest menu (auto-updated on push) |
+| `brew.py` | Local web app for logging brew sessions |
 
 **Current collection:** 35 teas across 7 categories (~871g total)  
 **Categories:** White · Green · Yellow · Oolong · Black · Ripe Pu-erh (shou) · Raw Pu-erh (sheng)  
@@ -21,7 +22,13 @@ A personal tea collection tracker for George and Doug. This repo keeps track of 
 
 ## Logging a brew session
 
-Open a [new Brew Session issue](../../issues/new?template=brew_session.yml) — fill out the form and submit. Once you close the issue and add the `brew-logged` label, it gets automatically appended to `brew-log/brews.csv`.
+Run the local web app from the repo root:
+
+```bash
+python brew.py
+```
+
+A browser opens at `http://localhost:7890` with a form — pick the tea, fill in the parameters, hit **Log it**. The row is appended directly to `brew-log/brews.csv`. No internet required.
 
 **Brewing vessels:**
 - Western: Hario ChaCha Kyusu Maru 450ml
