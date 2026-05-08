@@ -65,8 +65,8 @@ export default function Menu() {
                   return (
                     <div key={tea.name} className={`menu-item${oos ? ' menu-oos' : ''}`}>
                       <div
-                        className={`menu-row${tea.description && !oos ? ' menu-row-expandable' : ''}`}
-                        onClick={() => tea.description && !oos && toggleTea(tea.name)}
+                        className={`menu-row${tea.description ? ' menu-row-expandable' : ''}`}
+                        onClick={() => tea.description && toggleTea(tea.name)}
                       >
                         <div className="menu-tea-info">
                           <span className="menu-tea-name">{tea.name}</span>
@@ -75,7 +75,7 @@ export default function Menu() {
                         </div>
                         <div className="menu-row-right">
                           <span className="menu-vendor">{tea.vendor}</span>
-                          {tea.description && !oos && (
+                          {tea.description && (
                             <span className={`menu-chevron${expandedTea === tea.name ? ' menu-chevron-open' : ''}`}>›</span>
                           )}
                         </div>
