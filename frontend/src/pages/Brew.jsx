@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import { getTeas, postBrew } from '../api'
 
 const VESSELS = [
-  { value: 'Hario ChaCha Kyusu Maru', label: 'Hario ChaCha Kyusu Maru (450ml western)' },
+  { value: 'Hario ChaCha Kyusu Maru', label: 'Hario ChaCha Kyusu Maru (300ml western)' },
   { value: '100ml gaiwan', label: '100ml gaiwan (gong fu)' },
+  { value: 'Grandpa style', label: 'Grandpa style' },
 ]
 
 const RATINGS = ['5','4.5','4','3.5','3','2.5','2','1.5','1']
