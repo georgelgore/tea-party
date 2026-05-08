@@ -2,11 +2,16 @@ import { useEffect, useState } from 'react'
 import { getTeas, postBrew } from '../api'
 
 const VESSELS = [
-  { value: 'Hario ChaCha Kyusu Maru', label: 'Hario ChaCha Kyusu Maru (450ml western)' },
+  { value: 'Hario ChaCha Kyusu Maru', label: 'Hario ChaCha Kyusu Maru (300ml western)' },
   { value: '100ml gaiwan', label: '100ml gaiwan (gong fu)' },
+  { value: 'Grandpa style', label: 'Grandpa style' },
 ]
 
-const RATINGS = ['5','4.5','4','3.5','3','2.5','2','1.5','1']
+const RATINGS = [
+  { value: 'thumbs_down', label: '👎' },
+  { value: 'neutral',     label: '😐' },
+  { value: 'thumbs_up',   label: '👍' },
+]
 
 function today() {
   return new Date().toISOString().slice(0, 10)
@@ -98,11 +103,11 @@ export default function Brew() {
 
             <div className="full">
               <label>Rating</label>
-              <div className="stars">
+              <div className="brew-rating">
                 {RATINGS.map(r => (
-                  <label key={r} title={r} style={{ cursor: 'pointer' }}>
-                    <input type="radio" name="rating" value={r} checked={form.rating === r} onChange={set('rating')} />
-                    ★
+                  <label key={r.value} className={`brew-rating-btn${form.rating === r.value ? ' brew-rating-selected' : ''}`}>
+                    <input type="radio" name="rating" value={r.value} checked={form.rating === r.value} onChange={set('rating')} />
+                    {r.label}
                   </label>
                 ))}
               </div>
