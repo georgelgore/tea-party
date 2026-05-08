@@ -279,15 +279,45 @@ button[type='submit']:disabled { opacity: .55; cursor: default; }
   margin-bottom: .5rem;
 }
 
+.menu-item {
+  border-bottom: 1px dashed #ede9e2;
+}
+.menu-item:last-child { border-bottom: none; }
+
 .menu-row {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   gap: 1rem;
   padding: .4rem 0;
-  border-bottom: 1px dashed #ede9e2;
 }
-.menu-row:last-child { border-bottom: none; }
+
+.menu-row-expandable { cursor: pointer; }
+.menu-row-expandable:hover .menu-tea-name { color: var(--accent); }
+
+.menu-row-right {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  flex-shrink: 0;
+}
+
+.menu-chevron {
+  font-size: .9rem;
+  color: var(--text-muted);
+  display: inline-block;
+  transition: transform .18s;
+  line-height: 1;
+}
+.menu-chevron-open { transform: rotate(90deg); }
+
+.menu-description {
+  font-size: .82rem;
+  color: var(--text-muted);
+  font-style: italic;
+  line-height: 1.5;
+  padding: .15rem 0 .5rem;
+}
 
 .menu-tea-info {
   display: flex;

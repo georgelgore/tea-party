@@ -25,6 +25,7 @@ function groupByCategory(teas) {
 export default function Menu() {
   const [teas, setTeas] = useState([])
   const [loading, setLoading] = useState(true)
+  const [expandedTea, setExpandedTea] = useState(null)
 
   useEffect(() => {
     getTeas().then(data => { setTeas(data); setLoading(false) })
@@ -32,6 +33,10 @@ export default function Menu() {
 
   const groups = groupByCategory(teas)
   const inStock = teas.filter(t => Number(t.quantity_remaining_g) > 0)
+
+  function toggleTea(name) {
+    setExpandedTea(prev => prev === name ? null : name)
+  }
 
   return (
     <div className="page">
@@ -56,13 +61,26 @@ export default function Menu() {
                   <span>{cat}</span>
                 </div>
                 {rows.map(tea => (
-                  <div key={tea.name} className="menu-row">
-                    <div className="menu-tea-info">
-                      <span className="menu-tea-name">{tea.name}</span>
-                      {tea.year && <span className="menu-tag">{tea.year}</span>}
-                      {tea.subcategory && <span className="menu-tag">{tea.subcategory}</span>}
+                  <div key={tea.name} className="menu-item">
+                    <div
+                      className={`menu-row${tea.description ? ' menu-row-expandable' : ''}`}
+                      onClick={() => tea.description && toggleTea(tea.name)}
+                    >
+                      <div className="menu-tea-info">
+                        <span className="menu-tea-name">{tea.name}</span>
+                        {tea.year && <span className="menu-tag">{tea.year}</span>}
+                        {tea.subcategory && <span className="menu-tag">{tea.subcategory}</span>}
+                      </div>
+                      <div className="menu-row-right">
+                        <span className="menu-vendor">{tea.vendor}</span>
+                        {tea.description && (
+                          <span className={`menu-chevron${expandedTea === tea.name ? ' menu-chevron-open' : ''}`}>›</span>
+                        )}
+                      </div>
                     </div>
-                    <span className="menu-vendor">{tea.vendor}</span>
+                    {expandedTea === tea.name && tea.description && (
+                      <p className="menu-description">{tea.description}</p>
+                    )}
                   </div>
                 ))}
               </div>
