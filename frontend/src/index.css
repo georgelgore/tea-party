@@ -122,23 +122,23 @@ select:focus, input:focus, textarea:focus {
 }
 textarea { resize: vertical; min-height: 76px; font-family: inherit; }
 
-/* Star rating */
-.stars { display: flex; flex-direction: row-reverse; justify-content: flex-end; gap: .15rem; }
-.stars input { display: none; }
-.stars label {
+/* Brew rating */
+.brew-rating { display: flex; gap: .5rem; }
+.brew-rating input { display: none; }
+.brew-rating-btn {
   font-size: 1.5rem;
-  color: #ccc;
+  line-height: 1;
   cursor: pointer;
+  padding: .3rem .55rem;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  transition: background .12s, border-color .12s;
   text-transform: none;
   letter-spacing: 0;
   font-weight: 400;
-  padding: 0;
-  margin: 0;
-  line-height: 1;
 }
-.stars input:checked ~ label,
-.stars label:hover,
-.stars label:hover ~ label { color: var(--star-active); }
+.brew-rating-btn:hover { background: #f3efe9; }
+.brew-rating-selected { border-color: var(--accent); background: #f3efe9; }
 
 /* Submit */
 .submit-row { margin-top: 1.25rem; display: flex; align-items: center; gap: 1rem; }
