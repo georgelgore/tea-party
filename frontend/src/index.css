@@ -240,10 +240,11 @@ button[type='submit']:disabled { opacity: .55; cursor: default; }
 .inv-tick { color: #2d6a2d; font-size: .9rem; }
 .inv-cross { color: #8b2020; font-size: .9rem; }
 
-/* Mobile inventory */
+/* Mobile */
 @media (max-width: 540px) {
   .card { padding: 1.25rem 1rem; }
 
+  /* Inventory */
   .inv-row {
     flex-direction: column;
     align-items: stretch;
@@ -260,6 +261,17 @@ button[type='submit']:disabled { opacity: .55; cursor: default; }
   .inv-controls { flex-wrap: wrap; }
 
   .inv-btn { padding: .45rem .8rem; }
+
+  /* Menu */
+  .menu-row { align-items: flex-start; }
+
+  .menu-tea-info { flex-wrap: wrap; }
+
+  .menu-tea-name {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+  }
 }
 
 /* Menu page */
@@ -382,3 +394,5 @@ button[type='submit']:disabled { opacity: .55; cursor: default; }
   padding-top: 1.25rem;
   border-top: 1px solid var(--border);
 }
+
+.menu-oos { opacity: .4; }

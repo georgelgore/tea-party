@@ -52,7 +52,7 @@ export default function Menu() {
           <p className="hint" style={{ marginTop: '1rem', textAlign: 'center' }}>Steeping…</p>
         ) : (
           CATEGORY_ORDER.map(cat => {
-            const rows = groups[cat].filter(t => Number(t.quantity_remaining_g) > 0)
+            const rows = groups[cat]
             if (!rows.length) return null
             return (
               <div key={cat} className="menu-section">
@@ -60,29 +60,32 @@ export default function Menu() {
                   <span>{CATEGORY_EMOJI[cat]}</span>
                   <span>{cat}</span>
                 </div>
-                {rows.map(tea => (
-                  <div key={tea.name} className="menu-item">
-                    <div
-                      className={`menu-row${tea.description ? ' menu-row-expandable' : ''}`}
-                      onClick={() => tea.description && toggleTea(tea.name)}
-                    >
-                      <div className="menu-tea-info">
-                        <span className="menu-tea-name">{tea.name}</span>
-                        {tea.year && <span className="menu-tag">{tea.year}</span>}
-                        {tea.subcategory && <span className="menu-tag">{tea.subcategory}</span>}
+                {rows.map(tea => {
+                  const oos = Number(tea.quantity_remaining_g) === 0
+                  return (
+                    <div key={tea.name} className={`menu-item${oos ? ' menu-oos' : ''}`}>
+                      <div
+                        className={`menu-row${tea.description && !oos ? ' menu-row-expandable' : ''}`}
+                        onClick={() => tea.description && !oos && toggleTea(tea.name)}
+                      >
+                        <div className="menu-tea-info">
+                          <span className="menu-tea-name">{tea.name}</span>
+                          {tea.year && <span className="menu-tag">{tea.year}</span>}
+                          {tea.subcategory && <span className="menu-tag">{tea.subcategory}</span>}
+                        </div>
+                        <div className="menu-row-right">
+                          <span className="menu-vendor">{tea.vendor}</span>
+                          {tea.description && !oos && (
+                            <span className={`menu-chevron${expandedTea === tea.name ? ' menu-chevron-open' : ''}`}>›</span>
+                          )}
+                        </div>
                       </div>
-                      <div className="menu-row-right">
-                        <span className="menu-vendor">{tea.vendor}</span>
-                        {tea.description && (
-                          <span className={`menu-chevron${expandedTea === tea.name ? ' menu-chevron-open' : ''}`}>›</span>
-                        )}
-                      </div>
+                      {expandedTea === tea.name && tea.description && (
+                        <p className="menu-description">{tea.description}</p>
+                      )}
                     </div>
-                    {expandedTea === tea.name && tea.description && (
-                      <p className="menu-description">{tea.description}</p>
-                    )}
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )
           })
