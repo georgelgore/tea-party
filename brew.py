@@ -23,6 +23,7 @@ from flask_cors import CORS
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 TEAS_CSV = os.path.join(REPO_ROOT, "inventory", "teas.csv")
 BREWS_CSV = os.path.join(REPO_ROOT, "brew-log", "brews.csv")
+BREWERS_CSV = os.path.join(REPO_ROOT, "brew-log", "brewers.csv")
 PORT = int(os.environ.get("PORT", 7890))
 ON_RAILWAY = "PORT" in os.environ
 
@@ -44,6 +45,41 @@ CORS(app, origins=[
 def load_teas():
     with open(TEAS_CSV, newline="", encoding="utf-8") as f:
         return list(csv.DictReader(f))
+
+
+def load_brewers():
+    if not os.path.exists(BREWERS_CSV):
+        return []
+    with open(BREWERS_CSV, newline="", encoding="utf-8") as f:
+        return [row["name"] for row in csv.DictReader(f) if row.get("name")]
+
+
+def _ensure_brewer(name):
+    if not name:
+        return
+    try:
+        if GITHUB_TOKEN:
+            current = _github_request("GET", "brew-log/brewers.csv")
+            existing_text = base64.b64decode(current["content"]).decode("utf-8")
+            existing_names = [r["name"] for r in csv.DictReader(io.StringIO(existing_text)) if r.get("name")]
+            if name in existing_names:
+                return
+            buf = io.StringIO()
+            buf.write(existing_text if existing_text.endswith("\n") else existing_text + "\n")
+            csv.writer(buf).writerow([name])
+            new_content = base64.b64encode(buf.getvalue().encode()).decode()
+            _github_request("PUT", "brew-log/brewers.csv", {
+                "message": f"brewers: add {name}",
+                "content": new_content,
+                "sha": current["sha"],
+            })
+        else:
+            existing = load_brewers()
+            if name not in existing:
+                with open(BREWERS_CSV, "a", newline="", encoding="utf-8") as f:
+                    csv.writer(f).writerow([name])
+    except Exception:
+        pass  # never block a brew submission over brewer persistence
 
 
 def _github_request(method, path, body=None):
@@ -85,12 +121,18 @@ def get_teas():
     return jsonify(load_teas())
 
 
+@app.route("/api/brewers", methods=["GET"])
+def get_brewers():
+    return jsonify(load_brewers())
+
+
 @app.route("/api/brew", methods=["POST"])
 def post_brew():
     data = request.get_json(force=True)
     try:
         tea = data.get("tea_name", "")
         day = data.get("date", str(date.today()))
+        brewer = data.get("brewer", "").strip()
         row = [
             day,
             tea,
@@ -102,11 +144,13 @@ def post_brew():
             data.get("steeps", ""),
             data.get("rating", ""),
             data.get("tasting_notes", "").replace("\n", " "),
+            brewer,
         ]
         _commit_csv_row(
             "brew-log/brews.csv", BREWS_CSV, row,
             f"brew: log session for {tea} on {day}",
         )
+        _ensure_brewer(brewer)
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
