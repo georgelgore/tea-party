@@ -3,14 +3,14 @@ import { getTeas } from '../api'
 
 const CATEGORY_ORDER = ['White', 'Green', 'Yellow', 'Oolong', 'Black', 'Ripe Puerh', 'Raw Puerh']
 
-const CATEGORY_EMOJI = {
-  White: '🌸',
-  Green: '🍃',
-  Yellow: '🌼',
-  Oolong: '🌀',
-  Black: '🍂',
-  'Ripe Puerh': '🍄',
-  'Raw Puerh': '🌿',
+const CAT_COLORS = {
+  'White':      '#a8a8a0',
+  'Green':      '#5a7a4a',
+  'Yellow':     '#b8963a',
+  'Oolong':     '#8b6914',
+  'Black':      '#3a2a1a',
+  'Ripe Puerh': '#6b3a2a',
+  'Raw Puerh':  '#4a6b3a',
 }
 
 function groupByCategory(teas) {
@@ -57,8 +57,8 @@ export default function Menu() {
             return (
               <div key={cat} className="menu-section">
                 <div className="menu-cat">
-                  <span>{CATEGORY_EMOJI[cat]}</span>
-                  <span>{cat}</span>
+                  <span className="menu-cat-dot" style={{ background: CAT_COLORS[cat] }} />
+                  <span className="menu-cat-label">{cat}</span>
                 </div>
                 {rows.map(tea => {
                   const oos = Number(tea.quantity_remaining_g) === 0

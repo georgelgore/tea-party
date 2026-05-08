@@ -4,18 +4,31 @@ import AddTea from './pages/AddTea'
 import Inventory from './pages/Inventory'
 import Menu from './pages/Menu'
 
-const link = ({ isActive }) => 'nav-link' + (isActive ? ' active' : '')
+const tabClass = ({ isActive }) => 'nav-tab' + (isActive ? ' active' : '')
 
 export default function App() {
   return (
     <HashRouter>
-      <nav className="nav">
-        <span className="nav-title">Doug &amp; George's Tea Party</span>
-        <NavLink to="/" end className={link}>Log Brew</NavLink>
-        <NavLink to="/menu" className={link}>Menu</NavLink>
-        <NavLink to="/inventory" className={link}>Inventory</NavLink>
-        <NavLink to="/add-tea" className={link}>Add Tea</NavLink>
-      </nav>
+      <header className="site-header">
+        <div className="site-header-top">
+          <span className="site-name">Doug &amp; George's</span>
+          <span className="site-tagline">Brooklyn · Spring 2026</span>
+        </div>
+        <nav className="nav-tabs">
+          <NavLink to="/" end className={tabClass}>
+            Brew <span className="nav-tab-num">01</span>
+          </NavLink>
+          <NavLink to="/menu" className={tabClass}>
+            Menu <span className="nav-tab-num">02</span>
+          </NavLink>
+          <NavLink to="/inventory" className={tabClass}>
+            Inventory <span className="nav-tab-num">03</span>
+          </NavLink>
+          <NavLink to="/add-tea" className={tabClass}>
+            Add Tea <span className="nav-tab-num">04</span>
+          </NavLink>
+        </nav>
+      </header>
       <Routes>
         <Route path="/" element={<Brew />} />
         <Route path="/menu" element={<Menu />} />
