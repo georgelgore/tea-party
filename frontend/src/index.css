@@ -239,3 +239,94 @@ button[type='submit']:disabled { opacity: .55; cursor: default; }
 
 .inv-tick { color: #2d6a2d; font-size: .9rem; }
 .inv-cross { color: #8b2020; font-size: .9rem; }
+
+/* Menu page */
+.menu-card { max-width: 600px; }
+
+.menu-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.menu-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: .04em;
+}
+
+.menu-subtitle {
+  font-size: .82rem;
+  color: var(--text-muted);
+  margin-top: .35rem;
+}
+
+.menu-section { margin-bottom: 1.5rem; }
+
+.menu-cat {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding-bottom: .4rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: .5rem;
+}
+
+.menu-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: .4rem 0;
+  border-bottom: 1px dashed #ede9e2;
+}
+.menu-row:last-child { border-bottom: none; }
+
+.menu-tea-info {
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.menu-tea-name {
+  font-size: .92rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu-tag {
+  font-size: .72rem;
+  color: var(--text-muted);
+  background: #f3efe9;
+  border-radius: 4px;
+  padding: .1rem .35rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.menu-vendor {
+  font-size: .78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.menu-footer {
+  text-align: center;
+  font-size: .8rem;
+  color: var(--text-muted);
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}

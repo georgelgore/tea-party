@@ -1,0 +1,79 @@
+import { useEffect, useState } from 'react'
+import { getTeas } from '../api'
+
+const CATEGORY_ORDER = ['White', 'Green', 'Yellow', 'Oolong', 'Black', 'Ripe Puerh', 'Raw Puerh']
+
+const CATEGORY_EMOJI = {
+  White: '🌸',
+  Green: '🍃',
+  Yellow: '🌼',
+  Oolong: '🌀',
+  Black: '🍂',
+  'Ripe Puerh': '🍄',
+  'Raw Puerh': '🌿',
+}
+
+function groupByCategory(teas) {
+  const groups = {}
+  for (const cat of CATEGORY_ORDER) groups[cat] = []
+  for (const tea of teas) {
+    if (groups[tea.category]) groups[tea.category].push(tea)
+  }
+  return groups
+}
+
+export default function Menu() {
+  const [teas, setTeas] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    getTeas().then(data => { setTeas(data); setLoading(false) })
+  }, [])
+
+  const groups = groupByCategory(teas)
+  const inStock = teas.filter(t => Number(t.quantity_remaining_g) > 0)
+
+  return (
+    <div className="page">
+      <div className="card menu-card">
+        <div className="menu-header">
+          <div className="menu-title">Doug &amp; George's Tea Menu</div>
+          {!loading && (
+            <div className="menu-subtitle">{inStock.length} teas available</div>
+          )}
+        </div>
+
+        {loading ? (
+          <p className="hint" style={{ marginTop: '1rem', textAlign: 'center' }}>Steeping…</p>
+        ) : (
+          CATEGORY_ORDER.map(cat => {
+            const rows = groups[cat].filter(t => Number(t.quantity_remaining_g) > 0)
+            if (!rows.length) return null
+            return (
+              <div key={cat} className="menu-section">
+                <div className="menu-cat">
+                  <span>{CATEGORY_EMOJI[cat]}</span>
+                  <span>{cat}</span>
+                </div>
+                {rows.map(tea => (
+                  <div key={tea.name} className="menu-row">
+                    <div className="menu-tea-info">
+                      <span className="menu-tea-name">{tea.name}</span>
+                      {tea.year && <span className="menu-tag">{tea.year}</span>}
+                      {tea.subcategory && <span className="menu-tag">{tea.subcategory}</span>}
+                    </div>
+                    <span className="menu-vendor">{tea.vendor}</span>
+                  </div>
+                ))}
+              </div>
+            )
+          })
+        )}
+
+        <div className="menu-footer">
+          brewed with love ☕
+        </div>
+      </div>
+    </div>
+  )
+}
