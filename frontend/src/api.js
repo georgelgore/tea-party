@@ -13,3 +13,4 @@ async function req(path, options = {}) {
 export const getTeas = () => req('/api/teas')
 export const postBrew = (data) => req('/api/brew', { method: 'POST', body: JSON.stringify(data) })
 export const postTea = (data) => req('/api/tea', { method: 'POST', body: JSON.stringify(data) })
+export const patchTea = (data) => req('/api/tea', { method: 'PATCH', body: JSON.stringify(data) })
