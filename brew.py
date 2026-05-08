@@ -139,6 +139,63 @@ def post_tea():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/tea", methods=["PATCH"])
+def patch_tea():
+    data = request.get_json(force=True)
+    try:
+        name = data.get("name", "").strip()
+        if not name:
+            return jsonify({"error": "name is required"}), 400
+        new_quantity = str(data.get("quantity_remaining_g", "")).strip()
+
+        if GITHUB_TOKEN:
+            current = _github_request("GET", "inventory/teas.csv")
+            existing = base64.b64decode(current["content"]).decode("utf-8")
+            lines = existing.splitlines(keepends=True)
+            updated = []
+            found = False
+            reader = csv.reader(lines[1:])
+            updated.append(lines[0])
+            for line, row in zip(lines[1:], reader):
+                if row and row[0].strip() == name:
+                    row[6] = new_quantity
+                    buf = io.StringIO()
+                    csv.writer(buf).writerow(row)
+                    updated.append(buf.getvalue())
+                    found = True
+                else:
+                    updated.append(line)
+            if not found:
+                return jsonify({"error": f"Tea not found: {name}"}), 404
+            new_content = base64.b64encode("".join(updated).encode()).decode()
+            _github_request("PUT", "inventory/teas.csv", {
+                "message": f"inventory: update remaining quantity for {name}",
+                "content": new_content,
+                "sha": current["sha"],
+            })
+        else:
+            rows = []
+            found = False
+            with open(TEAS_CSV, newline="", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                fieldnames = reader.fieldnames
+                for row in reader:
+                    if row["name"].strip() == name:
+                        row["quantity_remaining_g"] = new_quantity
+                        found = True
+                    rows.append(row)
+            if not found:
+                return jsonify({"error": f"Tea not found: {name}"}), 404
+            with open(TEAS_CSV, "w", newline="", encoding="utf-8") as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(rows)
+
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # ---------------------------------------------------------------------------
 # Local dev startup
 # ---------------------------------------------------------------------------
