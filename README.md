@@ -22,13 +22,23 @@ A personal tea collection tracker for George and Doug. This repo keeps track of 
 
 ## Logging a brew session
 
-Run the local web app from the repo root:
+### Hosted on Railway (any device, no terminal)
+
+The app runs at a permanent URL on Railway — open it on any phone, tablet, or computer. Sessions commit directly to `brews.csv` in this repo.
+
+**One-time setup:**
+1. Go to [railway.app](https://railway.app), create a project, connect this GitHub repo
+2. Create a fine-grained GitHub PAT at github.com/settings/tokens — scope it to `tea-party`, permission `Contents: read and write`
+3. In Railway dashboard → Variables → add `GITHUB_TOKEN = <your PAT>`
+4. Railway auto-deploys on every push to `main`
+
+### Local (same WiFi only)
 
 ```bash
 python brew.py
 ```
 
-A browser opens at `http://localhost:7890` with a form — pick the tea, fill in the parameters, hit **Log it**. The row is appended directly to `brew-log/brews.csv`. No internet required.
+A browser opens at `http://localhost:7890`. The network URL is also printed — open that on any device on the same WiFi. Writes directly to the local `brew-log/brews.csv`.
 
 **Brewing vessels:**
 - Western: Hario ChaCha Kyusu Maru 450ml
