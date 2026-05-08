@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
 """
-brew.py — Local brew session logger for Doug & George's Tea Party.
-Run from the repo root: python brew.py
-Opens a browser form at http://localhost:7890
+brew.py — Brew session logger for Doug & George's Tea Party.
+
+Local:   python brew.py  (writes to brew-log/brews.csv)
+Railway: set GITHUB_TOKEN env var; sessions commit back to the repo.
 """
 
+import base64
 import csv
+import io
+import json
 import os
 import socket
 import threading
+import urllib.request
 import webbrowser
 from datetime import date
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -17,7 +22,12 @@ from urllib.parse import parse_qs, urlparse
 REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 TEAS_CSV = os.path.join(REPO_ROOT, "inventory", "teas.csv")
 BREWS_CSV = os.path.join(REPO_ROOT, "brew-log", "brews.csv")
-PORT = 7890
+PORT = int(os.environ.get("PORT", 7890))
+ON_RAILWAY = "PORT" in os.environ
+
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
+GITHUB_REPO = "georgelgore/tea-party"
+BREWS_API_PATH = "brew-log/brews.csv"
 
 VESSELS = [
     ("Hario ChaCha Kyusu Maru", "Hario ChaCha Kyusu Maru (450ml western)"),
@@ -30,8 +40,8 @@ def load_tea_names():
         return [row["name"].strip() for row in csv.DictReader(f)]
 
 
-def append_brew(fields):
-    row = [
+def _build_row(fields):
+    return [
         fields.get("date", str(date.today())),
         fields["tea_name"],
         fields["vessel"],
@@ -43,8 +53,38 @@ def append_brew(fields):
         fields["rating"],
         fields.get("tasting_notes", "").replace("\r\n", " ").replace("\n", " "),
     ]
-    with open(BREWS_CSV, "a", newline="", encoding="utf-8") as f:
-        csv.writer(f).writerow(row)
+
+
+def _github_request(method, path, body=None):
+    url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{path}"
+    data = json.dumps(body).encode() if body else None
+    req = urllib.request.Request(url, data=data, method=method)
+    req.add_header("Authorization", f"Bearer {GITHUB_TOKEN}")
+    req.add_header("Accept", "application/vnd.github+json")
+    req.add_header("Content-Type", "application/json")
+    with urllib.request.urlopen(req) as resp:
+        return json.loads(resp.read())
+
+
+def commit_brew(fields):
+    if GITHUB_TOKEN:
+        row = _build_row(fields)
+        current = _github_request("GET", BREWS_API_PATH)
+        existing = base64.b64decode(current["content"]).decode("utf-8")
+        buf = io.StringIO()
+        buf.write(existing if existing.endswith("\n") else existing + "\n")
+        csv.writer(buf).writerow(row)
+        new_content = base64.b64encode(buf.getvalue().encode()).decode()
+        tea = fields.get("tea_name", "unknown")
+        day = fields.get("date", str(date.today()))
+        _github_request("PUT", BREWS_API_PATH, {
+            "message": f"brew: log session for {tea} on {day}",
+            "content": new_content,
+            "sha": current["sha"],
+        })
+    else:
+        with open(BREWS_CSV, "a", newline="", encoding="utf-8") as f:
+            csv.writer(f).writerow(_build_row(fields))
 
 
 def build_page(tea_names, message=None, error=None):
@@ -336,7 +376,7 @@ class Handler(BaseHTTPRequestHandler):
 
         message = error = None
         try:
-            append_brew(params)
+            commit_brew(params)
             message = f"Logged: {params.get('tea_name', '')} on {params.get('date', '')}"
         except Exception as e:
             error = f"Error saving: {e}"
@@ -363,13 +403,16 @@ def local_ip():
 def main():
     Handler.tea_names = load_tea_names()
     server = HTTPServer(("0.0.0.0", PORT), Handler)
-    local_url = f"http://localhost:{PORT}"
-    network_url = f"http://{local_ip()}:{PORT}"
-    print(f"  Tea Party brew logger running at:")
-    print(f"    Local:   {local_url}")
-    print(f"    Network: {network_url}  ← open this on your iPhone")
-    print("  Press Ctrl+C to stop.\n")
-    threading.Timer(0.5, lambda: webbrowser.open(local_url)).start()
+    if ON_RAILWAY:
+        print(f"  Tea Party brew logger running on port {PORT}")
+    else:
+        local_url = f"http://localhost:{PORT}"
+        network_url = f"http://{local_ip()}:{PORT}"
+        print("  Tea Party brew logger running at:")
+        print(f"    Local:   {local_url}")
+        print(f"    Network: {network_url}  ← open this on your iPhone")
+        print("  Press Ctrl+C to stop.\n")
+        threading.Timer(0.5, lambda: webbrowser.open(local_url)).start()
     try:
         server.serve_forever()
     except KeyboardInterrupt:
