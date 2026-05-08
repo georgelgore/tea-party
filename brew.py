@@ -129,6 +129,7 @@ def post_tea():
             quantity_g,
             quantity_g,  # quantity_remaining_g = quantity_g for new teas
             data.get("notes", ""),
+            data.get("description", ""),
         ]
         _commit_csv_row(
             "inventory/teas.csv", TEAS_CSV, row,
