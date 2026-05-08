@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { getTeas, postBrew } from '../api'
+import { getBrewers, getTeas, postBrew } from '../api'
 
 const VESSELS = [
   { value: 'Hario ChaCha Kyusu Maru', label: 'Hario ChaCha Kyusu Maru (300ml western)' },
@@ -124,14 +124,81 @@ function TeaPicker({ teas, value, onChange }) {
   )
 }
 
+function BrewerPicker({ brewers, value, onChange }) {
+  const [query, setQuery] = useState('')
+  const [open, setOpen] = useState(false)
+  const containerRef = useRef(null)
+
+  const q = query.toLowerCase()
+  const filtered = q ? brewers.filter(n => n.toLowerCase().includes(q)) : brewers
+  const showCreate = q && !brewers.some(n => n.toLowerCase() === q)
+
+  useEffect(() => {
+    function onMouseDown(e) {
+      if (containerRef.current && !containerRef.current.contains(e.target)) setOpen(false)
+    }
+    document.addEventListener('mousedown', onMouseDown)
+    return () => document.removeEventListener('mousedown', onMouseDown)
+  }, [])
+
+  function select(name) {
+    onChange(name)
+    setOpen(false)
+    setQuery('')
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Escape') { setOpen(false); return }
+    if (e.key === 'Enter' && open) {
+      e.preventDefault()
+      if (showCreate) select(query.trim())
+      else if (filtered[0]) select(filtered[0])
+    }
+  }
+
+  return (
+    <div className="tea-picker" ref={containerRef}>
+      <input
+        className="tea-picker-input"
+        placeholder="Your name…"
+        value={open ? query : value}
+        onFocus={() => { setOpen(true); setQuery('') }}
+        onChange={e => { setQuery(e.target.value) }}
+        onKeyDown={handleKey}
+        autoComplete="off"
+      />
+      <span className="tea-picker-chevron">›</span>
+      {open && (
+        <div className="tea-picker-dropdown">
+          {filtered.map(name => (
+            <div key={name} className="tea-picker-option" onMouseDown={() => select(name)}>
+              {name}
+            </div>
+          ))}
+          {showCreate && (
+            <div className="tea-picker-option tea-picker-create" onMouseDown={() => select(query.trim())}>
+              Add "{query.trim()}"
+            </div>
+          )}
+          {!filtered.length && !showCreate && (
+            <div className="tea-picker-empty">Start typing to add your name</div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function Brew() {
   const [teas, setTeas] = useState([])
-  const [form, setForm] = useState({ tea_name: '', vessel: VESSELS[0].value, leaf_g: '', water_ml: '', temp_c: '', steep_time_seconds: '', steeps: '1', date: today(), rating: '', tasting_notes: '' })
+  const [brewers, setBrewers] = useState([])
+  const [form, setForm] = useState({ tea_name: '', brewer: '', vessel: VESSELS[0].value, leaf_g: '', water_ml: '', temp_c: '', steep_time_seconds: '', steeps: '1', date: today(), rating: '', tasting_notes: '' })
   const [flash, setFlash] = useState(null)
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
     getTeas().then(rows => setTeas(rows))
+    getBrewers().then(names => setBrewers(names))
   }, [])
 
   function set(field) {
@@ -145,6 +212,9 @@ export default function Brew() {
     try {
       await postBrew(form)
       setFlash({ ok: true, msg: `Logged: ${form.tea_name} on ${form.date}` })
+      if (form.brewer && !brewers.includes(form.brewer)) {
+        setBrewers(bs => [...bs, form.brewer].sort())
+      }
       setForm(f => ({ ...f, tea_name: '', rating: '', tasting_notes: '', steeps: '1', leaf_g: '', water_ml: '', temp_c: '', steep_time_seconds: '' }))
     } catch (err) {
       setFlash({ ok: false, msg: err.message })
@@ -166,6 +236,11 @@ export default function Brew() {
             <div className="full">
               <label>Tea</label>
               <TeaPicker teas={teas} value={form.tea_name} onChange={name => setForm(f => ({ ...f, tea_name: name }))} />
+            </div>
+
+            <div className="full">
+              <label>Brewed by</label>
+              <BrewerPicker brewers={brewers} value={form.brewer} onChange={name => setForm(f => ({ ...f, brewer: name }))} />
             </div>
 
             <div className="full">

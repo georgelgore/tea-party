@@ -600,6 +600,7 @@ button[type='submit']:disabled { opacity: .55; cursor: default; }
 .tea-picker-option:hover,
 .tea-picker-option-active { background: #ede9e2; }
 .tea-picker-empty { padding: .6rem .7rem; font-size: .9rem; color: var(--subtle); }
+.tea-picker-create { font-style: italic; color: var(--accent); }
 
 /* ─── Mobile ─── */
 
